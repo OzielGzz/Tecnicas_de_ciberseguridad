@@ -4,6 +4,7 @@ import sys
 import subprocess
 import argparse
 import PIAportscan as portscan
+import PIAanalyzer as analyzer
 from PIAmetadatos import Metadatos as mta
 
 
@@ -12,29 +13,29 @@ tools = ['Ps','Ua','EoS', 'Mta']
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                 description='''The PIA framework is a set of tools used for security purposes, 
-        consists of a portscaner, urlanalyzer, emails and sms sender,etc''', 
+                                 description='''The PIA framework is a set of tools used for security purposes,
+        consists of a portscaner, urlanalyzer, emails and sms sender,etc''',
                                  epilog = '''
     Dato: Para la funcion de Metadatos no se requieren argumentos
-    
-    examples:
-        PIAmain -t Ps -ip 192.168.15.0/24 -p 10-200 -S savehere.txt''')
+
+    examples for Ps:
+        PIAmain -t Ps -ip 192.168.15.0/24 -p 10-200 -S savehere.txt
+
+    examples for Ua:
+        PIAmain -t Ua -K (Tu key de VirusTotal) -U urls_sospechosas.txt''')
 
 #choices=tools significa que solo acepta como valores elementos de la lista: tools
-parser.add_argument('-t', '--tool', type=str, metavar='', choices=tools, help= 
-                   "select a tool: portscaner= Ps, UrlAnalyzer= Ua ,Emails or SMS= EoS, Metadata from Images= Mta", required=True)
+parser.add_argument('-t', '--tool', type=str, metavar='', choices=tools, help=
+                   "select a tool: portscaner= Ps, UrlAnalyzer= Ua, Emails or SMS= EoS, Metadata from Images= Mta", required=True)
 #Creamos el grupo Ps y agregamos los argumentos de PortScaner a ese grupo
 Ps = parser.add_argument_group('PortScaner')
 Ps.add_argument('-ip', '--address', type=str, metavar='',help='Host(s) to scan' )
 Ps.add_argument('-p', '--port', type=str, metavar='',help='ports to scan')
 Ps.add_argument('-S', '--save', type=str, metavar='',help='save to file', default=False)
 #Creamos el grupo Ua y agregamos los argumentos de UrlAnalyzaer a ese grupo
-#NOTA: los argumentos añadidos son solo de prueba
 Ua = parser.add_argument_group('UrlAnalyzer')
-Ua.add_argument('-A', '--analyze', type=str, metavar='', help='read urls from file')
 Ua.add_argument('-K', '--Key', type=str, metavar='', help="Ingresa tu Key de Virus Total")
 Ua.add_argument('-U', '--Urls', type=str, metavar='', help="Archivo con ulrs sospechosas")
-
 
 #Creamos el grupo EoS y agregamos los argumentos de correos o SMS a ese grupo
 #NOTA: los argumentos añadidos son solo de prueba
@@ -45,11 +46,11 @@ args = parser.parse_args()
 
 #Funcion tools, actualmente esta funcion no cumple ninguna funcion en el script.
 def tools():
-    print ('PortScaner, the simple but powerfull port scannng tool') 
-    print ('opcion2 is the simple but powerfull opcion2') 
-    print ('opcion3 is the simple but powerfull opcion3') 
-    print ('opcion4 is the simple but powerfull opcion4') 
-    print ('opcion5 is the simple but powerfull opcion5') 
+    print ('PortScaner, the simple but powerfull port scannng tool')
+    print ('UrlAnalyzer, a tool to analyze urls with VirusTotal')
+    print ('opcion3 is the simple but powerfull opcion3')
+    print ('opcion4 is the simple but powerfull opcion4')
+    print ('opcion5 is the simple but powerfull opcion5')
 
 
 #Pybanner: imprime el banner: 'PIA' en caso de que el script de PowerShell o Bash fallen
@@ -95,9 +96,10 @@ def main():
     elif args.tool == 'Mta':
         print ('Metadatos de una Imagen')
         mta()
-        
+
+    elif args.tool == 'Ua':
+        print ('Ua selected')
+        #print (banner())
+        analyzer.inicio(args.Key, args.Urls)
 
 main()
-
-
-
