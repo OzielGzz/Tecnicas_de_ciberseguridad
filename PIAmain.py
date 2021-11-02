@@ -4,21 +4,25 @@ import sys
 import subprocess
 import argparse
 import PIAportscan as portscan
+from PIAmetadatos import Metadatos as mta
 
 
 #tools: una lista con nombre abreviado de las herrameintas
-tools = ['Ps','Ua','EoS']
+tools = ['Ps','Ua','EoS', 'Mta']
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                  description='''The PIA framework is a set of tools used for security purposes, 
         consists of a portscaner, urlanalyzer, emails and sms sender,etc''', 
-                                 epilog = '''examples:
+                                 epilog = '''
+    Dato: Para la funcion de Metadatos no se requieren argumentos
+    
+    examples:
         PIAmain -t Ps -ip 192.168.15.0/24 -p 10-200 -S savehere.txt''')
 
 #choices=tools significa que solo acepta como valores elementos de la lista: tools
 parser.add_argument('-t', '--tool', type=str, metavar='', choices=tools, help= 
-                   "select a tool: portscaner= Ps ,UrlAnalyzer= Ua ,Emails or SMS= EoS", required=True)
+                   "select a tool: portscaner= Ps, UrlAnalyzer= Ua ,Emails or SMS= EoS, Metadata from Images= Mta", required=True)
 #Creamos el grupo Ps y agregamos los argumentos de PortScaner a ese grupo
 Ps = parser.add_argument_group('PortScaner')
 Ps.add_argument('-ip', '--address', type=str, metavar='',help='Host(s) to scan' )
@@ -28,6 +32,10 @@ Ps.add_argument('-S', '--save', type=str, metavar='',help='save to file', defaul
 #NOTA: los argumentos añadidos son solo de prueba
 Ua = parser.add_argument_group('UrlAnalyzer')
 Ua.add_argument('-A', '--analyze', type=str, metavar='', help='read urls from file')
+Ua.add_argument('-K', '--Key', type=str, metavar='', help="Ingresa tu Key de Virus Total")
+Ua.add_argument('-U', '--Urls', type=str, metavar='', help="Archivo con ulrs sospechosas")
+
+
 #Creamos el grupo EoS y agregamos los argumentos de correos o SMS a ese grupo
 #NOTA: los argumentos añadidos son solo de prueba
 EoS = parser.add_argument_group('Emails and SMS')
@@ -72,6 +80,7 @@ def banner():
 
 def main():
     print ('running main')
+    # Ejecutando el portscanner
     if args.tool == 'Ps':
         print ('Ps selected')
         if not args.address == None:
@@ -82,7 +91,11 @@ def main():
                     portscan.Scansaver(args.address, args.port, args.save)
         else:
             print ('ADDRESS NOT GIVEN')
-
+    # Fin de Portscanner
+    elif args.tool == 'Mta':
+        print ('Metadatos de una Imagen')
+        mta()
+        
 
 main()
 
