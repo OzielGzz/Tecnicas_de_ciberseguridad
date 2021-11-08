@@ -4,10 +4,10 @@ from PIL.ExifTags import TAGS as ETIQUETAS
 from tkinter.filedialog import askopenfilename
 
 def Metadatos():
-    # Explorador de archivos
     contiene_metadatos = False
     datos = {}
     try:
+        # Aqui abrimos el explorador de archivos
         archivo_imagen = askopenfilename()
         foto = Imagen.open(archivo_imagen)
         for etiqueta, value in foto._getexif().items():
@@ -16,9 +16,8 @@ def Metadatos():
             
         contiene_metadatos = True
     except:
-        print("La imagen no es compatible porque no contiene metadatos")
-    #print (datos)
-    print("")
+        print ("\tERROR!\n\tPor favor revisa que la ruta sea correcta:\n",archivo_imagen,)
+        print ("\t Asegurate que el archivo este en formato JPG")
    
     for etiqueta, value in datos.items():
         key = ETIQUETAS.get(etiqueta, etiqueta)
@@ -36,8 +35,8 @@ def mta_ruta(ruta):
                 datos[ETIQUETAS[etiqueta]] = value            
         haveMta = True
     except:
-        print ("\tERROR!\n\tPor favor revisa que la ruta sea correcta:\n\t",ruta,)
-        print ("\t Asegurate que el archivo este en formato JPG")
+        print ("\tERROR!\n\tPor favor revisa que la ruta sea correcta:\n",ruta,)
+        print ("\tAsegurate que el archivo este en formato JPG")
     for etiqueta, value in datos.items():
         key = ETIQUETAS.get(etiqueta, etiqueta)
         print ("\t-" + key + ": " + str(value))
