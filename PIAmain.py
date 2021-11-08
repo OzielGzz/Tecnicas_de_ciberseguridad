@@ -1,27 +1,34 @@
 #!/usr/bin/env python3
 
+import logging 
 import sys
 import subprocess
 import argparse
 import PIAportscan as portscan
 import PIAanalyzer as analyzer
-from PIAmetadatos import Metadatos as mta
+#from PIAmetadatos import Metadatos as mta
 
+logger = logging.getLogger( __name__ )
+logger.setLevel(level= logging.INFO)
+filehandler = logging.FileHandler("PIAmain.log")
+formatter = logging.Formatter("%(asctime)s: %(levelname)s - %(message)s")
+filehandler.setFormatter(formatter)
+logger.addHandler(filehandler)
 
 #tools: una lista con nombre abreviado de las herrameintas
 tools = ['Ps','Ua','EoS', 'Mta']
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                 description='''The PIA framework is a set of tools used for security purposes,
-        consists of a portscaner, urlanalyzer, emails and sms sender,etc''',
+                                 description='''La suite PIA es una serie de herramientas usadas para cuestiones
+                                 de ciberseguridad''',
                                  epilog = '''
     Dato: Para la funcion de Metadatos no se requieren argumentos
 
-    examples for Ps:
+    ejemplo para portscaner:
         PIAmain -t Ps -ip 192.168.15.0/24 -p 10-200 -S savehere.txt
 
-    examples for Ua:
+    ejemplo para Url analyzer:
         PIAmain -t Ua -K (Tu key de VirusTotal) -U urls_sospechosas.txt''')
 
 #choices=tools significa que solo acepta como valores elementos de la lista: tools
@@ -72,34 +79,68 @@ def Pybanner():
 def banner():
     OS = sys.platform
     if OS == 'linux' or OS == 'darwin':
-       subprocess.run("./BASHbanner")
+        try:
+            subprocess.run("./BASHbanner")
+        except:
+            Pybanner()
     elif OS == 'win32':
-        subprocess.run("./PSbanner")
+        try:
+            subprocess.run("./PSbanner.ps1")
+        except:
+            Pybanner()
     else:
         Pybanner()
 
 
 def main():
-    print ('running main')
+    logger.info('corriendo main')
     # Ejecutando el portscanner
     if args.tool == 'Ps':
-        print ('Ps selected')
+        logger.info('Ps seleccionado')
         if not args.address == None:
             if args.save == False:
                     print (banner())
-                    print (portscan.PortScan(args.address, args.port))
-            else:
+                    try:
+                        logger.info("ejecutando portscan.PortScan")
+                        print (portscan.PortScan(args.address, args.port))
+                    except Exception as e:
+                        logger.info('Error al ejecutar portscan.PortScan', e)
+                        print (e)
+            else:   
+                try:
+                    logger.info("ejecutando portscan.Scansaver")
                     portscan.Scansaver(args.address, args.port, args.save)
+                except Exception as e:
+                    logger.info('Error al ejecutar portscan.Scansaver', e)
+                    print (e)
         else:
-            print ('ADDRESS NOT GIVEN')
+            print ('DIRECCION IP NO DADA')
+            logger.info('no se dio ip')
     # Fin de Portscanner
+    
     elif args.tool == 'Mta':
-        print ('Metadatos de una Imagen')
-        mta()
+        logger.info("Mta seleccionado")
+        banner()
+        try:
+            print ('Metadatos de una Imagen')
+            mta()
+        except:
+            logger.info("Error al ejecutar Mta()")
+            print ("ERROR")
 
     elif args.tool == 'Ua':
-        print ('Ua selected')
-        #print (banner())
-        analyzer.inicio(args.Key, args.Urls)
+        logger.info('Analizador de URLs seleccionado')
+        banner()
+        try:
+            logger.info("corriendo analyzer.inicio")
+            analyzer.inicio(args.Key, args.Urls)
+        except FileNotFoundError as e:
+            logger.info("Error al abrir archivo")
+            print (e)
+        except:
+            logger.info("Error al ejecutar analyzer.urls")
+            print ("Error al ejecutar\nEsta seguro que ingreso bien su API Key?")
+
 
 main()
+
