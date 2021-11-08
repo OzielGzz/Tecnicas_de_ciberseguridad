@@ -139,6 +139,7 @@ def main():
                     portscan.Scansaver(args.address, args.port, args.save)
         else:
             print ('ADDRESS NOT GIVEN')
+
     # Fin de Portscanner
     elif args.tool == 'Mta':
         print ('Metadatos de una Imagen')
@@ -157,8 +158,11 @@ def main():
             emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
             
     elif args.tool == 'Ua':
+	print ("")
         print ('Ua selected')
-        #print (banner())
+	print ("")
+        print (Pybanner())
+	print ("")
         analyzer.inicio(args.Key, args.Urls)
 
 main()
