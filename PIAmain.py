@@ -1,22 +1,14 @@
 #!/usr/bin/env python3
 
-import logging
 import sys
 import subprocess
 import argparse
 import configparser
 import PIAportscan as portscan
 import PIAanalyzer as analyzer
-#from PIAmetadatos import Metadatos as mta
+from PIAmetadatos import mta_ruta as mta
 import PIAEmailSMS as emailsms
 
-#Creamos el logger, establecemos niveles, archivo donde se guardara, y formato
-logger = logging.getLogger(__name__)
-logger.setLevel(level=logging.INFO)
-filehandler = logging.FileHandler('PIAmain.log')
-formatter = logging.Formatter( "%(asctime)s: %(levelname)s - %(message)s")
-filehandler.setFormatter(formatter)
-logger.addHandler(filehandler)
 
 #tools: una lista con nombre abreviado de las herrameintas
 tools = ['Ps','Ua','EoS', 'Mta']
@@ -28,13 +20,13 @@ parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpForm
                                  epilog = '''
     Dato: Para la funcion de Metadatos no se requieren argumentos
 
-    ejemplo para  Ps:
+    examples for Ps:
         PIAmain -t Ps -ip 192.168.15.0/24 -p 10-200 -S savehere.txt
 
-    ejemplo para Ua:
+    examples for Ua:
         PIAmain -t Ua -K (Tu key de VirusTotal) -U urls_sospechosas.txt
 
-    ejemplo para EoS:
+    example for EoS:
         PIAmain -t EoS -EoS email -e (nuestro correo) -co (contraseña) -re (correo de quien recibe) -a "aqui va el asunto" -b "mensaje"
         PIAmain -t EoS -EoS sms -SID "Nuestro SID" -to "Nuestro token" -n "nuestro numero de Twilio" -d +52numero destino -m "mensaje"
         ''')
@@ -127,88 +119,50 @@ def Pybanner():
 def banner():
     OS = sys.platform
     if OS == 'linux' or OS == 'darwin':
-        logger.info("Sistema UNIX-LIKE")
-        try:
-             subprocess.run("./BASHbanner")
-        except:
-            logger.info("ERROR al ejecutar BASHbanner, usando Pybanner")
-            Pybanner()
+       subprocess.run("./BASHbanner")
     elif OS == 'win32':
-        logger.info("Sistema Windows detectado")
-        try:
-            subprocess.run("./PSbanner")
-        except:
-            logger.info("ERROR al ejecutar PSbanner, usando Pybanner")
-            Pybanner()
+        subprocess.run("./PSbanner")
     else:
-        logger.info("No se pudo determinar OS")
         Pybanner()
 
 
 def main():
-    logger.info ('running main')
+    print ('running main')
     # Ejecutando el portscanner
     if args.tool == 'Ps':
-        logger.info ('portscaner seleccionado')
-        print ("Ps seleccionado")
+        print ('Ps selected')
         if not args.address == None:
             if args.save == False:
-                    banner()
-                    try:
-                        print (portscan.PortScan(args.address, args.port))
-                    except:
-                        logger.info ("ERROR al ejecutar portscan.PortScan")
-                    
+                    print (banner())
+                    print (portscan.PortScan(args.address, args.port))
             else:
-                try:
                     portscan.Scansaver(args.address, args.port, args.save)
-                except:
-                    logger.info("ERROR al ejecutar portscan.Scansaver")
-                    
         else:
             print ('ADDRESS NOT GIVEN')
 
     # Fin de Portscanner
     elif args.tool == 'Mta':
-        logger.info('ejecutando metadatos')
-        print ("Metadatos seleccionado")
-        try:
-            mta()
-        except:
-            logger.info("ERROR al ejecutar mta()")
+        print ('Metadatos de una Imagen')
+        mta()
 
     elif args.tool == 'EoS':
-        logger.info("Emails y mensajes seleccionado")
         print ('EoS Selected')
         if args.EoS == 'email':
-            try:
-                 emailsms.send_emailP(args.email,args.contra,args.receiver,args.asunto,args.body,args.file)
-            except:
-                logging.info("ERROR al ejecutar emails.send_emailP")
+            emailsms.send_emailP(args.email,args.contra,args.receiver,args.asunto,args.body,args.file)
 
         elif args.EoS == 'sms':
-            try:
-                 emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
-            except:
-                logging.info("emailsms.send_smsP")
+            emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
 
         elif args.EoS == 'ambos':
-            try:
-                 emailsms.send_emailP(args.email,args.contra,args.receiver,args.asunto,args.body,args.file)
-                 emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
-            except:
-                logging.info("ERROR al ejecutar emailsms.send_emailP , email.send_smsP")
+            emailsms.send_emailP(args.email,args.contra,args.receiver,args.asunto,args.body,args.file)
+            emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
             
     elif args.tool == 'Ua':
-        logging.info("Ua seleccionado")
         print ("")
         print ('Ua selected')
         print ("")
-        banner()
+        print (Pybanner())
         print ("")
-        try:
-             analyzer.inicio(args.Key, args.Urls)
-        except:
-            logger.info("ERROR al ejecutar analyzer.inicio")
+        analyzer.inicio(args.Key, args.Urls)
 
 main()
