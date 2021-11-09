@@ -1,79 +1,86 @@
 #!/usr/bin/env python3
 
+import logging
 import sys
 import subprocess
 import argparse
 import configparser
 import PIAportscan as portscan
 import PIAanalyzer as analyzer
-from PIAmetadatos import Metadatos as mta
+import PIAmetadatos as metadata
 import PIAEmailSMS as emailsms
+import PIACifrado as cifrado
 
+# Creamos el logger, establecemos niveles, archivo donde se guardara, y formato
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.INFO)
+filehandler = logging.FileHandler('PIAmain.log')
+formatter = logging.Formatter( "%(asctime)s: %(levelname)s - %(message)s")
+filehandler.setFormatter(formatter)
+logger.addHandler(filehandler)
 
-#tools: una lista con nombre abreviado de las herrameintas
-tools = ['Ps','Ua','EoS', 'Mta']
+# Tools: una lista con nombre abreviado de las herrameintas
+tools = ['Ps','Ua','EoS', 'Mta', 'Cif']
 
-
-parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                 description='''The PIA framework is a set of tools used for security purposes,
+# Descripción del Parser
+parser = argparse.ArgumentParser(description='''The PIA framework is a set of tools used for security purposes,
         consists of a portscaner, urlanalyzer, emails and sms sender,etc''',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
                                  epilog = '''
-    Dato: Para la funcion de Metadatos no se requieren argumentos
+        ejemplos:
 
-    examples for Ps:
-        PIAmain -t Ps -ip 192.168.15.0/24 -p 10-200 -S savehere.txt
-
-    examples for Ua:
-        PIAmain -t Ua -K (Tu key de VirusTotal) -U urls_sospechosas.txt
-
-    example for EoS:
-        PIAmain -t EoS -EoS email -e (nuestro correo) -co (contraseña) -re (correo de quien recibe) -a "aqui va el asunto" -b "mensaje"
-        PIAmain -t EoS -EoS sms -SID "Nuestro SID" -to "Nuestro token" -n "nuestro numero de Twilio" -d +52numero destino -m "mensaje"
+        PIAmain -t Ps -ip 192.168.15.1 -p 22 80 \n
+        PIAmain -t Ua -K (Tu key de VirusTotal) -U urls_sospechosas.txt \n
+        PIAmain -t EoS -EoS email -e (nuestro correo) -co (contraseña) -re (correo de quien recibe) -a "aqui va el asunto" -b "mensaje"\n
+        PIAmain -t EoS -EoS sms -SID "Nuestro SID" -to "Nuestro token" -n "nuestro numero de Twilio" -d +52numero destino -m "mensaje"\n
+        PIAmain -t Cif -m 'este es mi mensaje' -k millave -A c
         ''')
 
-#choices=tools significa que solo acepta como valores elementos de la lista: tools
-parser.add_argument('-t', '--tool', type=str, metavar='', choices=tools, help=
-                   "select a tool: portscaner= Ps, UrlAnalyzer= Ua, Emails or SMS= EoS, Metadata from Images= Mta", required=True)
-#Creamos el grupo Ps y agregamos los argumentos de PortScaner a ese grupo
+# Choices=tools Significa que solo acepta como valores elementos de la lista: tools
+parser.add_argument('-t', '--tool', type=str, metavar='Ps', choices=tools, 
+                    help="select a tool: portscaner= Ps, UrlAnalyzer= Ua, Emails or SMS= EoS, Metadata from Images= Mta, cifrado= Cif", 
+                    required=True)
+
+# Argumentos de PortScaner
 Ps = parser.add_argument_group('PortScaner')
-Ps.add_argument('-ip', '--address', type=str, metavar='',help='Host(s) to scan' )
-Ps.add_argument('-p', '--port', type=str, metavar='',help='ports to scan')
-Ps.add_argument('-S', '--save', type=str, metavar='',help='save to file', default=False)
-#Creamos el grupo Ua y agregamos los argumentos de UrlAnalyzaer a ese grupo
+Ps.add_argument('-ip', '--address', type=str, metavar='10.10.10.10',help='una direccion ipv4 ' )
+Ps.add_argument('-p', '--port', type=int, metavar='22 80 443',nargs='*',choices=range(0,65534),help='no poner []')
+
+# Argumentos de UrlAnalyzaer
 Ua = parser.add_argument_group('UrlAnalyzer')
-Ua.add_argument('-K', '--Key', type=str, metavar='', help="Ingresa tu Key de Virus Total")
-Ua.add_argument('-U', '--Urls', type=str, metavar='', help="Archivo con ulrs sospechosas")
+Ua.add_argument('-K', '--Key', type=str, metavar='API Key', help="Ingresa tu Key de Virus Total")
+Ua.add_argument('-U', '--Urls', type=str, metavar='archive', help="Archivo con ulrs sospechosas")
 
-#Creamos el grupo EoS y agregamos los argumentos de correos o SMS a ese grupo
+# Creamos el grupo EoS y agregamos los argumentos de correos o SMS a ese grupo
 EoS = parser.add_argument_group('Emails and SMS')
-EoS.add_argument('-EoS', type=str,
-                    help='Escribir que deseamos enviar: email, sms, ambos')
-# Parametros para email:
-EoS.add_argument('-e', '--email', type= str, metavar='',
-                    help="Ingresar nuestro correo")
-EoS.add_argument('-co', '--contra', type= str, metavar='',
-                    help="Ingresar nuestra contraseña")
-EoS.add_argument('-re', '--receiver', type= str, metavar='',
-                    help="Correo de quien recibira el email")
-EoS.add_argument('-a', '--asunto', type= str, metavar='',
-                    help="Ingresar el asunto del correo")
-EoS.add_argument('-b', '--body', type= str, metavar='',
-                    help="Ingresar el cuerpo del correo")
-EoS.add_argument('-f', '--file', default= 'no', metavar='',
-                    help="Especificar la ruta del archivo a adjuntar")
-# Parametros para sms:
-EoS.add_argument('-SID', metavar='',
-                    help="Ingresar nuestro SID de Twilio")
-EoS.add_argument('-to', metavar='',   
-                    help="Ingresar nuestra Token de Twilio")
-EoS.add_argument('-n','--number', metavar='',
-                    help="Ingresar nuestro numero de Twilio")
-EoS.add_argument('-d',    metavar='',  
-                    help="Ingresar el numero del destinatario(Agregar +52)")
-EoS.add_argument('-m', '--msj', metavar='',       
-                    help="Ingresar el mensaje a enviar")
-EoS.add_argument('--config', '-c', type=argparse.FileType('r'), help='config file')
+EoS.add_argument('-EoS', type=str,metavar='email',
+                 help='Escribir que deseamos enviar: email, sms, ambos')
 
+# Parametros para Email:
+EoS.add_argument('-e', '--email', type= str, metavar='sndrmail', help="Ingresar nuestro correo")
+EoS.add_argument('-co', '--contra', type= str, metavar='pass', help="Ingresar nuestra contraseña")
+EoS.add_argument('-re', '--receiver', type= str, metavar='recvmail',help="Correo de quien recibira el email")
+EoS.add_argument('-a', '--asunto', type= str, metavar='asunto', help="Ingresar el asunto del correo")
+EoS.add_argument('-b', '--body', type= str, metavar='body', help="Ingresar el cuerpo del correo")
+EoS.add_argument('-f', '--file', default= 'no', metavar='/ruta', help="Especificar la ruta del archivo a adjuntar")
+
+# Parametros para SMS
+EoS.add_argument('-SID', type = str, metavar='SID', help="Ingresar nuestro SID de Twilio")
+EoS.add_argument('-to', type = str,  metavar='token', help="Ingresar nuestra Token de Twilio")
+EoS.add_argument('-n','--number', type = str, metavar='twilio num', help="Ingresar nuestro numero de Twilio")
+EoS.add_argument('-d', type = str, metavar='dest#', help="Ingresar el numero del destinatario(Agregar +52)")
+EoS.add_argument('-m', '--msj', type = str, metavar='msje', help="Ingresar el mensaje a enviar")
+EoS.add_argument('-c', '--config', type=argparse.FileType('r'), metavar='config file', help='config file')
+
+# Parametros para Metadatos
+Meta = parser.add_argument_group("Metadatos de Imagen JPG")
+Meta.add_argument('-r', '--ruta', type = str, metavar='/ruta', help="La ruta especifica de la imagen a analizar")
+
+# Parametros para Cifrado
+cif = parser.add_argument_group("Cifrado y descifrado")
+cif.add_argument('-M', '--msje',type=str, metavar='msje', help='mensaje a cifrar')
+cif.add_argument('-k', '--key', type=str, metavar='llave', help='Llave para cifrar')
+cif.add_argument('-A', '--accion', type=str, metavar='d',choices=['d', 'e'],  help='cifrar= c , descifrar= d')
 args = parser.parse_args()
 
 if args.config:
@@ -90,6 +97,7 @@ if args.config:
         args.number = config['SMS']['number']
         args.numdest = config['SMS']['d']
         args.msj = config['SMS']['msj']
+
 
 #Funcion tools, actualmente esta funcion no cumple ninguna funcion en el script.
 def tools():
@@ -119,50 +127,86 @@ def Pybanner():
 def banner():
     OS = sys.platform
     if OS == 'linux' or OS == 'darwin':
-       subprocess.run("./BASHbanner")
+        logger.info("Sistema UNIX-LIKE")
+        try:
+             subprocess.run("./BASHbanner")
+        except:
+            logger.info("ERROR al ejecutar BASHbanner, usando Pybanner")
+            Pybanner()
     elif OS == 'win32':
-        subprocess.run("./PSbanner")
+        logger.info("Sistema Windows detectado")
+        try:
+            subprocess.run("./PSbanner")
+        except:
+            logger.info("ERROR al ejecutar PSbanner, usando Pybanner")
+            Pybanner()
     else:
+        logger.info("No se pudo determinar OS")
         Pybanner()
 
 
 def main():
-    print ('running main')
+    logger.info ('running main')
     # Ejecutando el portscanner
     if args.tool == 'Ps':
-        print ('Ps selected')
-        if not args.address == None:
-            if args.save == False:
-                    print (banner())
-                    print (portscan.PortScan(args.address, args.port))
-            else:
-                    portscan.Scansaver(args.address, args.port, args.save)
-        else:
-            print ('ADDRESS NOT GIVEN')
+        logger.info ('portscaner seleccionado')
+        print ("Ps seleccionado")
+        banner()
+        try:
+            portscan.portscan(args.address, args.port)
+        except:
+            logger.info ("ERROR al ejecutar portscan.portScan")
+            print ("ERROR, ip deber ser tipo str y port tipo int, ej: -ip '10.10.10.10' -p 22 80 443 ")
 
     # Fin de Portscanner
     elif args.tool == 'Mta':
-        print ('Metadatos de una Imagen')
-        mta()
+        logger.info('ejecutando metadatos')
+        print ("Metadatos seleccionado")
+        try:
+            if args.ruta == None:
+                metadata.Metadatos()
+            else: 
+                metadata.mta_ruta(args.ruta)
+        except:
+            logger.info("ERROR al ejecutar mta()")
 
     elif args.tool == 'EoS':
+        logger.info("Emails y mensajes seleccionado")
         print ('EoS Selected')
         if args.EoS == 'email':
-            emailsms.send_emailP(args.email,args.contra,args.receiver,args.asunto,args.body,args.file)
-
+            try:
+                 emailsms.send_emailP(args.email,args.contra,args.receiver,args.asunto,args.body,args.file)
+            except:
+                logging.info("ERROR al ejecutar emails.send_emailP")
         elif args.EoS == 'sms':
-            emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
+            try:
+                 emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
+            except:
+                logging.info("emailsms.send_smsP")
 
         elif args.EoS == 'ambos':
-            emailsms.send_emailP(args.email,args.contra,args.receiver,args.asunto,args.body,args.file)
-            emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
+            try:
+                 emailsms.send_emailP(args.email,args.contra,args.receiver,args.asunto,args.body,args.file)
+                 emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
+            except:
+                logging.info("ERROR al ejecutar emailsms.send_emailP , email.send_smsP")
             
     elif args.tool == 'Ua':
-	print ("")
+        logging.info("Ua seleccionado")
+        print ("")
         print ('Ua selected')
-	print ("")
-        print (Pybanner())
-	print ("")
-        analyzer.inicio(args.Key, args.Urls)
-
+        print ("")
+        banner()
+        print ("")
+        try:
+             analyzer.inicio(args.Key, args.Urls)
+        except:
+            logger.info("ERROR al ejecutar analyzer.inicio")
+    elif args.tool == 'Cif':
+        banner()
+        try:
+            cifrado.main(args.msje, args.key, args.accion)
+        except:
+            logging.info("ERROR al ejecutar PIACifrado.main")
+            print ("Atributos para -m y -K de 2 o mas palabras deben estar entre comillas: 'este es un ejemplo '")
 main()
