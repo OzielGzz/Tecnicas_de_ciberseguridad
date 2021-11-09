@@ -29,7 +29,7 @@ parser = argparse.ArgumentParser(description='''The PIA framework is a set of to
                                  epilog = '''
         ejemplos:
 
-        PIAmain -t Ps -ip 192.168.15.1 -p 22 80 \n
+        PIAmain -t Ps -ip '192.168.15.1' -p 22 80 \n
         PIAmain -t Ua -K (Tu key de VirusTotal) -U urls_sospechosas.txt \n
         PIAmain -t EoS -EoS email -e (nuestro correo) -co (contraseña) -re (correo de quien recibe) -a "aqui va el asunto" -b "mensaje"\n
         PIAmain -t EoS -EoS sms -SID "Nuestro SID" -to "Nuestro token" -n "nuestro numero de Twilio" -d +52numero destino -m "mensaje"\n
