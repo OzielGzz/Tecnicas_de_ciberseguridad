@@ -23,13 +23,12 @@ logger.addHandler(filehandler)
 tools = ['Ps','Ua','EoS', 'Mta', 'Cif']
 
 # Descripción del Parser
-parser = argparse.ArgumentParser(description='''The PIA framework is a set of tools used for security purposes,
-        consists of a portscaner, urlanalyzer, emails and sms sender,etc''',
+parser = argparse.ArgumentParser(description='''La suite PIA son una serie de herramientas usadas para ciberseguridad''',
         formatter_class=argparse.RawDescriptionHelpFormatter,
                                  epilog = '''
         ejemplos:
 
-        PIAmain -t Ps -ip 192.168.15.1 -p 22 80 \n
+        PIAmain -t Ps -ip '192.168.15.1' -p 22 80 \n
         PIAmain -t Ua -K (Tu key de VirusTotal) -U urls_sospechosas.txt \n
         PIAmain -t EoS -EoS email -e (nuestro correo) -co (contraseña) -re (correo de quien recibe) -a "aqui va el asunto" -b "mensaje"\n
         PIAmain -t EoS -EoS sms -SID "Nuestro SID" -to "Nuestro token" -n "nuestro numero de Twilio" -d +52numero destino -m "mensaje"\n
@@ -38,7 +37,7 @@ parser = argparse.ArgumentParser(description='''The PIA framework is a set of to
 
 # Choices=tools Significa que solo acepta como valores elementos de la lista: tools
 parser.add_argument('-t', '--tool', type=str, metavar='Ps', choices=tools, 
-                    help="select a tool: portscaner= Ps, UrlAnalyzer= Ua, Emails or SMS= EoS, Metadata from Images= Mta, cifrado= Cif", 
+                    help="Herramienta: portscaner= Ps, UrlAnalyzer= Ua, Emails or SMS= EoS, Metadata from Images= Mta, cifrado= Cif", 
                     required=True)
 
 # Argumentos de PortScaner
@@ -160,6 +159,7 @@ def main():
 
     # Fin de Portscanner
     elif args.tool == 'Mta':
+        banner()
         logger.info('ejecutando metadatos')
         print ("Metadatos seleccionado")
         try:
@@ -169,30 +169,35 @@ def main():
                 metadata.mta_ruta(args.ruta)
         except:
             logger.info("ERROR al ejecutar mta()")
+            print ("ERRO al ejecutar Metadatos, -h para obtener ayuda de uso")
 
     elif args.tool == 'EoS':
         logger.info("Emails y mensajes seleccionado")
         print ('EoS Selected')
+        banner()
         if args.EoS == 'email':
             try:
                  emailsms.send_emailP(args.email,args.contra,args.receiver,args.asunto,args.body,args.file)
             except:
-                logging.info("ERROR al ejecutar emails.send_emailP")
+                logger.info("ERROR al ejecutar emails.send_emailP")
+                print ("ERRO al ejecutar EoS, -h para obtener ayuda de uso")
         elif args.EoS == 'sms':
             try:
                  emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
             except:
-                logging.info("emailsms.send_smsP")
+                logger.info("emailsms.send_smsP")
+                print ("ERRO al ejecutar EoS, -h para obtener ayuda de uso")
 
         elif args.EoS == 'ambos':
             try:
                  emailsms.send_emailP(args.email,args.contra,args.receiver,args.asunto,args.body,args.file)
                  emailsms.send_smsP(args.SID,args.to,args.number,args.d,args.msj)
             except:
-                logging.info("ERROR al ejecutar emailsms.send_emailP , email.send_smsP")
+                logger.info("ERROR al ejecutar emailsms.send_emailP , email.send_smsP")
+                print ("ERRO al ejecutar EoS, -h para obtener ayuda de uso")
             
     elif args.tool == 'Ua':
-        logging.info("Ua seleccionado")
+        logger.info("Ua seleccionado")
         print ("")
         print ('Ua selected')
         print ("")
@@ -202,11 +207,12 @@ def main():
              analyzer.inicio(args.Key, args.Urls)
         except:
             logger.info("ERROR al ejecutar analyzer.inicio")
+            print ("ERRO al ejecutar UrlAnalyzer, -h para obtener ayuda de uso")
     elif args.tool == 'Cif':
         banner()
         try:
             cifrado.main(args.msje, args.key, args.accion)
         except:
-            logging.info("ERROR al ejecutar PIACifrado.main")
+            logger.info("ERROR al ejecutar PIACifrado.main")
             print ("Atributos para -m y -K de 2 o mas palabras deben estar entre comillas: 'este es un ejemplo '")
 main()

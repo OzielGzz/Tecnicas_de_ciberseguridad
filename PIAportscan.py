@@ -1,46 +1,25 @@
 #!/usr/bin/env python3
 
-import nmap 
 import argparse
+import socket 
+import sys
 
 
-#parser = argparse.ArgumentParser(description='Network Scanner')
-#parser.add_argument('-H', '--host', type=str, metavar='', required=True, help='Host(s) to scan')
-#parser.add_argument('-p', '--port', type=str, metavar='', required=True, help='Port or range of ports')
-#group = parser.add_mutually_exclusive_group()
-#group.add_argument('-S', '--save', action='store_true', help='save to file')
-#args = parser.parse_args()
+def portscan(ip, portlist):
+    print ("IP", ip, type(ip))
+    try:
+        for port in portlist:
+            sock=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(5)
+            result = sock.connect_ex((ip,port))
+            if result == 0:
+                print ("Puerto {}: \t Abierto".format(port))
+            else:
+                print ("Puerto {}: \t Cerrado".format(port))
+            sock.close
+    except socket.error as error:
+        print (str(error))
+        print ("Error de conexion")
+        sys.exit
 
-
-def PortScan(host, port):
-    nm = nmap.PortScanner()
-    nm.scan(host, port)
-    for host in nm.all_hosts():
-        print('----------------------------------------------------')
-        print('Host : %s (%s)' % (host, nm[host].hostname()))
-        print('State : %s' % nm[host].state())
-        for proto in nm[host].all_protocols():
-            print('----------')
-            print('Protocol : %s' % proto)
-   
-            lport = nm[host][proto].keys()
-#            lport.sort()
-            for port in lport:
-                print ('port : %s\tstate : %s' % (port, nm[host][proto][port]['state']))
-
-
-def Scansaver(host, port, arch):
-    nm = nmap.PortScanner()
-    nm.scan(host, port)
-    #name = input('Guardar como: ')
-    #archname = name + '.txt'
-    with open(arch, 'w')as arch:
-        arch.write(nm.csv())
-
-
-if __name__ == '__main__':
-    if args.save:
-        Scansaver(args.host, args.port)
-    else:
-        print (PortScan(args.host, args.port))
 
