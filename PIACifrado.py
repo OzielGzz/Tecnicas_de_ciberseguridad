@@ -7,7 +7,7 @@ LETRAS = ("ABCDEFGHIJKLMNÑOPQRSTUVWXYZ")
 #Esta es la funcion main
 def main(mensaje, myKey, accion):
     #Aqui se mandan a llamar las funciones de encriptar o descifrar segun tu eleecion
-    if accion=='e':
+    if accion=='c':
         traducido=cifrar_mensaje(myKey,mensaje)
     elif accion=='d':
         traducido=descifrar_mensaje(myKey,mensaje)

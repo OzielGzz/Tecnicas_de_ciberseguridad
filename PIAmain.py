@@ -32,7 +32,7 @@ parser = argparse.ArgumentParser(description='''La suite PIA son una serie de he
         PIAmain -t Ua -K (Tu key de VirusTotal) -U urls_sospechosas.txt \n
         PIAmain -t EoS -EoS email -e (nuestro correo) -co (contraseña) -re (correo de quien recibe) -a "aqui va el asunto" -b "mensaje"\n
         PIAmain -t EoS -EoS sms -SID "Nuestro SID" -to "Nuestro token" -n "nuestro numero de Twilio" -d +52numero destino -m "mensaje"\n
-        PIAmain -t Cif -m 'este es mi mensaje' -k millave -A c
+        PIAmain -t Cif -M 'este es mi mensaje' -k millave -A c
         ''')
 
 # Choices=tools Significa que solo acepta como valores elementos de la lista: tools
@@ -79,7 +79,7 @@ Meta.add_argument('-r', '--ruta', type = str, metavar='/ruta', help="La ruta esp
 cif = parser.add_argument_group("Cifrado y descifrado")
 cif.add_argument('-M', '--msje',type=str, metavar='msje', help='mensaje a cifrar')
 cif.add_argument('-k', '--key', type=str, metavar='llave', help='Llave para cifrar')
-cif.add_argument('-A', '--accion', type=str, metavar='d',choices=['d', 'e'],  help='cifrar= c , descifrar= d')
+cif.add_argument('-A', '--accion', type=str, metavar='d',choices=['d', 'c'],  help='cifrar= c , descifrar= d')
 args = parser.parse_args()
 
 if args.config:
