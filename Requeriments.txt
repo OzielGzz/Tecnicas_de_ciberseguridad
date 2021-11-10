@@ -1,0 +1,5 @@
+Modulos no nativos de Python:
+virustotal-api 
+openpyxl 
+pillow 
+twilio
