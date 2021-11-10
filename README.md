@@ -11,10 +11,10 @@ _Estas instrucciones te permitirán obtener una copia del proyecto en funcionami
 ### Pre-requisitos 📋
 
 _Que cosas necesitas para instalar el software y como instalarlas_
-virustotal-api
-openpyxl
-pillow
-twilio
+_virustotal-api_
+_openpyxl_
+_pillow_
+_twilio_
 
 ```
 pip install virustotal-api
@@ -25,12 +25,10 @@ pip install twilio
 
 ### Instalación 🔧
 
-_Una serie de ejemplos paso a paso que te dice lo que debes ejecutar para tener un entorno de desarrollo ejecutandose_
-
-_Dí cómo será ese paso_
+_Descargar el Zip del repositorio_
 
 ```
-Descargar el Zip del repositorio
+https://github.com/OzielGzz/Tecnicas_de_ciberseguridad/archive/refs/heads/main.zip
 ```
 
 ## Ejecutando las pruebas ⚙️
@@ -46,9 +44,9 @@ _Para ver información de uso del programa_
 
 ## Construido con 🛠️
 
-_Python
-Powershell
-Bash_
+_Python_
+_Powershell_
+_Bash_
 
 * [Python](https://www.python.org/downloads/) - Enlace de descarga última versión de Python
 * [Powershell](https://docs.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.2) - Información acerca de Powershell
