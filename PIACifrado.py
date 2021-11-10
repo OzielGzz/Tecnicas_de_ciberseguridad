@@ -5,24 +5,11 @@
 LETRAS = ("ABCDEFGHIJKLMNÑOPQRSTUVWXYZ")
 
 #Esta es la funcion main
-
 def main(mensaje, myKey, accion):
     #Aqui se mandan a llamar las funciones de encriptar o descifrar segun tu eleecion
     if accion=='e':
         traducido=cifrar_mensaje(myKey,mensaje)
     elif accion=='d':
-=======
-def main():
-    #Esta parte te pide que escribas el mensaje que quieres cifrar
-    mensaje=input("Inserta tu mensaje: ")
-    myKey="JULIANTORRES"
-    #Esta parte te pide que opcion quieres elegir si encriptar tu mensaje, o descifar un mensaje
-    accion=input("¿Deseas encriptar o descifrar?: ")
-    #Aqui se mandan a llamar las funciones de encriptar o descifrar segun tu eleecion
-    if accion=='encriptar':
-        traducido=cifrar_mensaje(myKey,mensaje)
-    elif accion=='descifrar':
-
         traducido=descifrar_mensaje(myKey,mensaje)
     print("Tu resultado es: "+ traducido)
 
@@ -61,10 +48,5 @@ def traductor_mensaje(clave,mensa,accion):
             traducido.append(symbol)
     return ('').join(traducido)
 
-
 #if __name__ == '__main__':
 #    main('hello fools', 'jorge', 'encriptar')
-=======
-if __name__ == '__main__':
-    main()
-
