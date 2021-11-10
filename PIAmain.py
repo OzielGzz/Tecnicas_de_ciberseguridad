@@ -215,4 +215,8 @@ def main():
         except:
             logger.info("ERROR al ejecutar PIACifrado.main")
             print ("Atributos para -m y -K de 2 o mas palabras deben estar entre comillas: 'este es un ejemplo '")
-main()
+
+
+if __name__ == '__main__':
+    main()
+
