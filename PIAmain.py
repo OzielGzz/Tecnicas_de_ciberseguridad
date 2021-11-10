@@ -135,7 +135,8 @@ def banner():
     elif OS == 'win32':
         logger.info("Sistema Windows detectado")
         try:
-            subprocess.run("./PSbanner")
+            p = subprocess.Popen('powershell.exe -ExecutionPolicy RemoteSigned -file "PSbanner.ps1"', stdout=sys.stdout)
+            p.communicate()
         except:
             logger.info("ERROR al ejecutar PSbanner, usando Pybanner")
             Pybanner()
