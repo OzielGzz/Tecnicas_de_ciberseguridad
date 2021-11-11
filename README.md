@@ -71,18 +71,18 @@ Arg	|Argumento	|Descripción|	Ejemplo|
 ## Envio de correos y SMS
 Arg	|Argumento	|Descripción|	Ejemplo|
 |-|-|-|-|
--EoS	|N/A	|Para elegir entre Email, SMS o Ambos	|•	-EoS email •	-EoS sms •	-EoS ambos|
--e	|--email	|Email origen	|--email tucorreo@gmail.com
--c	|--contra|	Contraseña del email origen	|--contra *******
--re	|--reciber	|El correo destino|	--reciber correodetuamigo@gmail.com
--a|	--asunto	|El asunto del correo	|--asunto “IMPORTANTE!” _Dato: Entre comillas en caso de que sea más de una palabra_
--b	|--body|	El cuerpo del correo	|--body “Hola, buenas tardes” _Dato: Entre comillas en caso de que sea más de una palabra_
--f	|--file|	Especificar la ruta del archivo a adjuntar |_Dato: Este argumento es opcional	-f C:\foto.jpg_
--SID|	N/A|	Ingresar nuestro SID de Twilio	|-SID *******
--to|	N/A	|Ingresar nuestra Token de Twilio	|-to *******
--n|	--number|	Número de Twilio	|-n +818181818181
--d	| N/A|	El número del destinatario (Agregar +52)	|-d +528181818181
--m|	--msj	|Ingresar el mensaje a enviar	|--msj “Hola, buenas tardes” _Dato: Entre comillas en caso de que sea más de una palabra_
+|-EoS	|N/A	|Para elegir entre Email, SMS o Ambos	|•	-EoS email •	-EoS sms •	-EoS ambos|
+|-e	|--email	|Email origen	|--email tucorreo@gmail.com
+|-c	|--contra|	Contraseña del email origen	|--contra *******
+|-re	|--reciber	|El correo destino|	--reciber correodetuamigo@gmail.com
+|-a|	--asunto	|El asunto del correo	|--asunto “IMPORTANTE!” _Dato: Entre comillas en caso de que sea más de una palabra_
+|-b	|--body|	El cuerpo del correo	|--body “Hola, buenas tardes” _Dato: Entre comillas en caso de que sea más de una palabra_
+|-f	|--file|	Especificar la ruta del archivo a adjuntar |_Dato: Este argumento es opcional	-f C:\foto.jpg_
+|-SID |	N/A|	Ingresar nuestro SID de Twilio	|-SID *******
+|-to |	N/A	|Ingresar nuestra Token de Twilio	|-to *******
+|-n |	--number|	Número de Twilio	|-n +818181818181
+|-d | N/A|	El número del destinatario (Agregar +52)	|-d +528181818181
+|-m |	--msj	|Ingresar el mensaje a enviar	|--msj “Hola, buenas tardes” _Dato: Entre comillas en caso de que sea más de una palabra_
 
 ## Metadatos
 Arg	|Argumento	|Descripción|	Ejemplo|
